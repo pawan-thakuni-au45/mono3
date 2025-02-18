@@ -4,6 +4,7 @@ import jwt from "jsonwebtoken"
 import {JWT_SECRET}  from "@repo/common-backend/config"
 import { userMiddlewear } from "./middlewear"
 import {createUserSchema,signInSchema, createRoomSchema} from "@repo/common/types"
+import {prismaClient} from "@repo/db/client"
 
 const app=express()
 
@@ -15,6 +16,9 @@ app.post("/signup",(req,res)=>{
             message:"unauthorized"
         })
         return 
+    }
+    prismaClient.user.create{
+        
     }
 
     const userId=1
