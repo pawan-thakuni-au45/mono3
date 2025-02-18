@@ -16,13 +16,14 @@
     "@types/jsonwebtoken": "^9.0.8",
     "express": "^4.21.2",
     "jsonwebtoken": "^9.0.2",
-    "typescript": "^5.7.3",
-    "@repo/db":"workspace:*"
+    "typescript": "^5.7.3"
+   
   },
   "devDependencies": {
     "@repo/typescript-config": "workspace:*",
     "@repo/common-backend":"workspace:*",
-    "@repo/common":"workspace:*"
+    "@repo/common":"workspace:*",
+     "@repo/db":"workspace:*"
     
   }
 }

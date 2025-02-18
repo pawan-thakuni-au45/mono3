@@ -7,50 +7,118 @@ import {createUserSchema,signInSchema, createRoomSchema} from "@repo/common/type
 import {prismaClient} from "@repo/db/client"
 
 const app=express()
+app.use(express.json())
 
-app.post("/signup",(req,res)=>{
+app.post("/signup",async (req,res)=>{
 
-    const data=createUserSchema.safeParse(req.body)
-    if(!data.success){
+    const parseData=createUserSchema.safeParse(req.body)
+    
+    if(!parseData.success){
         res.send({
-            message:"unauthorized"
+            message:"unauthorized thi"
         })
         return 
     }
-    prismaClient.user.create{
-        
-    }
+    try{
+        await prismaClient.user.create({
+            data:{
+                username:parseData.data.username,
+                password:parseData.data.password,
+                email:parseData.data?.email
+            }
+           
+           
+        })
+        res.send({
+            message:"signed up"
+        })
 
-    const userId=1
-    res.send({
-        message:"signed in"
-    })
+    }catch(err){
+        res.status(411).json({
+            message:"user with this email already exist,please tyr another email"
+        })
+
+    }
+  
+
+   
 })
 
-app.post("/signin",(req,res)=>{
-    const data=signInSchema.safeParse(req.body)
-    if(!data.success){
+app.post("/signin",async (req,res)=>{
+    const parseData=signInSchema.safeParse(req.body)
+    if(!parseData.success){
         res.send({
             message:"unauthorized"
         })
         return 
     }
 
-    const userId=1
+    
+try{
+    const user=await prismaClient.user.findFirst({
+        where:{
+            password:parseData.data.password,
+            email:parseData.data.email
+        }
+    })
+    if(!user){
+        res.status(403).json({
+            message:"user does not exist"
+        })
+        return ;
+    }
+
+    const userId=user?.id
     const token=jwt.sign({
         userId
     },JWT_SECRET)
+    res.json({
+        message:"user signed in ",
+        token
+    })
+
+
+}catch(error){
+    res.json({
+        message:"something went wrong"
+    })
+
+}
 })
+  
 
-app.post("/chat",userMiddlewear,(req,res)=>{
+app.post("/room",userMiddlewear,async(req,res)=>{
 
-    const data=createRoomSchema.safeParse(req.body)
-    if(!data.success){
+    const parseData=createRoomSchema.safeParse(req.body)
+    if(!parseData.success){
         res.send({
             message:"jhj"
         })
         return 
     }
+    //@ts-ignore
+    const userId=req.userId
+   
+    
+
+    try{    const room=await prismaClient.room.create({
+        data:{
+            slug:parseData.data.name,
+            adminId:userId
+        }
+    })
+    res.json({
+        roomId:room.id
+    })
+
+    }catch(e){
+        res.status(411).json({
+            message:"user already exist with this rooid"
+        })
+
+    }
+
+
 
 })
 app.listen(3001)
