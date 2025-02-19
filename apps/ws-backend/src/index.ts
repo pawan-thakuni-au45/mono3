@@ -3,7 +3,7 @@ import {WebSocketServer,WebSocket} from "ws"
 import jwt, { JwtPayload } from "jsonwebtoken"
 import {JWT_SECRET} from "@repo/common-backend/config"
 import { parse } from "dotenv"
-
+import {prismaClient} from "@repo/db/client"
 const wss=new WebSocketServer({port:3002})
 
 interface User {
@@ -69,6 +69,13 @@ wss.on('connection',function connection(ws,request){
     if(parseData.type==="chat"){
         const roomId=parseData.roomId;
         const message=parseData.message;
+        prismaClient.chat.create({
+            data:{
+                roomId,
+                message,
+                userId
+            }
+        })
 
         users.forEach(user=>{
             if(user.rooms.includes(roomId)){

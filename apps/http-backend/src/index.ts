@@ -101,7 +101,8 @@ app.post("/room",userMiddlewear,async(req,res)=>{
    
     
 
-    try{    const room=await prismaClient.room.create({
+    try{    
+        const room=await prismaClient.room.create({
         data:{
             slug:parseData.data.name,
             adminId:userId
@@ -120,5 +121,22 @@ app.post("/room",userMiddlewear,async(req,res)=>{
 
 
 
+})
+
+app.get("chats/:roomId",(req,res)=>{
+    const roomId=Number(req.params.roomId)
+    const message=prismaClient.chat.findMany({
+        where:{
+            roomId:roomId
+        },
+        orderdBy:{
+            id:"desc"
+        },
+        take:50
+        
+    })
+    res.json({
+        message
+    })
 })
 app.listen(3001)
