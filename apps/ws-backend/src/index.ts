@@ -14,11 +14,17 @@ userId:string
 
 const users:User[]=[]
 function checkUser(token:string){
-    const decode=jwt.verify(token,JWT_SECRET)
-           if(!decode || !(decode as JwtPayload).userId){
-            return 
-           }
-           return ( decode as JwtPayload).userId
+    try{
+        const decode=jwt.verify(token,JWT_SECRET)
+        if(!decode || !(decode as JwtPayload).userId){
+         return null
+        }
+        return ( decode as JwtPayload).userId
+    }catch(e){
+        return null
+         
+    }
+   
 
 }
 
@@ -47,12 +53,12 @@ wss.on('connection',function connection(ws,request){
  
  ws.on('message',function message(data){
     const parseData=JSON.parse(data as unknown as string)
-    if(parseData.type==='join room'){
+    if(parseData.type==="join room"){
        const user= users.find(x=> x.ws===ws)
-       user?.rooms.push(parseData.rooId)
+       user?.rooms.push(parseData.roomId)
     }
 
-    if(parseData.type==='leave room'){
+    if(parseData.type==="leave room"){
         const user=users.find(x=>x.ws===ws)
         if(!user){
             return 
@@ -60,9 +66,9 @@ wss.on('connection',function connection(ws,request){
         user.rooms=user?.rooms.filter(parseData.roomId)
     }
 
-    if(parseData.type==='chat'){
-        const roomId=parseData.roomId
-        const message=parseData.message
+    if(parseData.type==="chat"){
+        const roomId=parseData.roomId;
+        const message=parseData.message;
 
         users.forEach(user=>{
             if(user.rooms.includes(roomId)){
