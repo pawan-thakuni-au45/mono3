@@ -123,20 +123,34 @@ app.post("/room",userMiddlewear,async(req,res)=>{
 
 })
 
-app.get("chats/:roomId",(req,res)=>{
+app.get("chats/:roomId",async(req,res)=>{
     const roomId=Number(req.params.roomId)
-    const message=prismaClient.chat.findMany({
+    const message=await prismaClient.chat.findMany({
         where:{
             roomId:roomId
         },
-        orderdBy:{
-            id:"desc"
+        orderBy:{
+            roomId:"desc"
         },
         take:50
         
     })
     res.json({
         message
+    })
+})
+
+app.get("/room/:slug",async (req,res)=>{
+    const slug=req.params.slug
+    const room=await prismaClient.room.findFirst({
+        where:{
+            slug
+        }
+        
+        
+    })
+    res.json({
+        room
     })
 })
 app.listen(3001)
