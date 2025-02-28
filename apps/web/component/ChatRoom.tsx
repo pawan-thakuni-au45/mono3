@@ -6,7 +6,7 @@ export async function getChats(roomId:string){
     return response.data.message
 }
 
-export async function chatroom({id}:{
+export async function ChatRoom({id}:{
     id:string
 }){
     const message=await getChats(id)
