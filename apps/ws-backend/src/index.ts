@@ -71,7 +71,7 @@ wss.on('connection',function connection(ws,request){
         const message=parseData.message;
         prismaClient.chat.create({
             data:{
-                roomId,
+                roomId:Number(roomId),
                 message,
                 userId
             }

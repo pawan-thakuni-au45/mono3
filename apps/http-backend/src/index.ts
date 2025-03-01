@@ -1,120 +1,120 @@
 
 import express from "express"
 import jwt from "jsonwebtoken"
-import {JWT_SECRET}  from "@repo/common-backend/config"
+import { JWT_SECRET } from "@repo/common-backend/config"
 import { userMiddlewear } from "./middlewear"
-import {createUserSchema,signInSchema, createRoomSchema} from "@repo/common/types"
-import {prismaClient} from "@repo/db/client"
+import { createUserSchema, signInSchema, createRoomSchema } from "@repo/common/types"
+import { prismaClient } from "@repo/db/client"
 
-const app=express()
+const app = express()
 app.use(express.json())
 
-app.post("/signup",async (req,res)=>{
+app.post("/signup", async (req, res) => {
 
-    const parseData=createUserSchema.safeParse(req.body)
-    
-    if(!parseData.success){
+    const parseData = createUserSchema.safeParse(req.body)
+
+    if (!parseData.success) {
         res.send({
-            message:"unauthorized thi"
+            message: "unauthorized thi"
         })
-        return 
+        return
     }
-    try{
+    try {
         await prismaClient.user.create({
-            data:{
-                username:parseData.data.username,
-                password:parseData.data.password,
-                email:parseData.data?.email
+            data: {
+                username: parseData.data.username,
+                password: parseData.data.password,
+                email: parseData.data?.email
             }
-           
-           
+
+
         })
         res.send({
-            message:"signed up"
+            message: "signed up"
         })
 
-    }catch(err){
+    } catch (err) {
         res.status(411).json({
-            message:"user with this email already exist,please tyr another email"
+            message: "user with this email already exist,please tyr another email"
         })
 
     }
-  
 
-   
+
+
 })
 
-app.post("/signin",async (req,res)=>{
-    const parseData=signInSchema.safeParse(req.body)
-    if(!parseData.success){
+app.post("/signin", async (req, res) => {
+    const parseData = signInSchema.safeParse(req.body)
+    if (!parseData.success) {
         res.send({
-            message:"unauthorized"
+            message: "unauthorized"
         })
-        return 
+        return
     }
 
-    
-try{
-    const user=await prismaClient.user.findFirst({
-        where:{
-            password:parseData.data.password,
-            email:parseData.data.email
+
+    try {
+        const user = await prismaClient.user.findFirst({
+            where: {
+                password: parseData.data.password,
+                email: parseData.data.email
+            }
+        })
+        if (!user) {
+            res.status(403).json({
+                message: "user does not exist"
+            })
+            return;
         }
-    })
-    if(!user){
-        res.status(403).json({
-            message:"user does not exist"
+
+        const userId = user?.id
+        const token = jwt.sign({
+            userId
+        }, JWT_SECRET)
+        res.json({
+            message: "user signed in ",
+            token
         })
-        return ;
+
+
+    } catch (error) {
+        res.json({
+            message: "something went wrong"
+        })
+
     }
-
-    const userId=user?.id
-    const token=jwt.sign({
-        userId
-    },JWT_SECRET)
-    res.json({
-        message:"user signed in ",
-        token
-    })
-
-
-}catch(error){
-    res.json({
-        message:"something went wrong"
-    })
-
-}
 })
-  
 
-app.post("/room",userMiddlewear,async(req,res)=>{
 
-    const parseData=createRoomSchema.safeParse(req.body)
-    if(!parseData.success){
+app.post("/room", userMiddlewear, async (req, res) => {
+
+    const parseData = createRoomSchema.safeParse(req.body)
+    if (!parseData.success) {
         res.send({
-            message:"jhj"
+            message: "jhj"
         })
-        return 
+        return
     }
     //@ts-ignore
-    const userId=req.userId
-   
-    
+    const userId = req.userId
 
-    try{    
-        const room=await prismaClient.room.create({
-        data:{
-            slug:parseData.data.name,
-            adminId:userId
-        }
-    })
-    res.json({
-        roomId:room.id
-    })
 
-    }catch(e){
+
+    try {
+        const room = await prismaClient.room.create({
+            data: {
+                slug: parseData.data.name,
+                adminId: userId
+            }
+        })
+        res.json({
+            roomId: room.id
+        })
+
+    } catch (e) {
         res.status(411).json({
-            message:"user already exist with this rooid"
+            message: "user already exist with this rooid"
         })
 
     }
@@ -123,34 +123,54 @@ app.post("/room",userMiddlewear,async(req,res)=>{
 
 })
 
-app.get("chats/:roomId",async(req,res)=>{
-    const roomId=Number(req.params.roomId)
-    const message=await prismaClient.chat.findMany({
-        where:{
-            roomId:roomId
-        },
-        orderBy:{
-            roomId:"desc"
-        },
-        take:50
-        
-    })
-    res.json({
-        message
-    })
+app.get("/chats/:roomId", async (req, res) => {
+
+    try{
+        const roomId = Number(req.params.roomId)
+        const messages = await prismaClient.chat.findMany({
+            where: {
+                roomId: roomId
+            },
+            orderBy: {
+                roomId: "desc"
+            },
+            take: 50
+    
+        })
+        res.json({
+            messages
+        })
+    }catch(err){
+        res.json({
+            messages:[]
+        })
+
+    }
+   
 })
 
-app.get("/room/:slug",async (req,res)=>{
-    const slug=req.params.slug
-    const room=await prismaClient.room.findFirst({
-        where:{
-            slug
-        }
-        
-        
-    })
-    res.json({
-        room
-    })
+app.get("/room/:slug", async (req, res) => {
+   
+    try{
+        const slug = req.params.slug
+        const room = await prismaClient.room.findFirst({
+            where: {
+                slug
+            }
+    
+    
+        })
+        res.json({
+            room
+        })
+    }catch(err){
+        res.json({
+            message:"wrong",
+            err
+        })
+    }
+  
 })
+
+
 app.listen(3001)
