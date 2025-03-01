@@ -165,7 +165,7 @@ app.get("/room/:slug", async (req, res) => {
         })
     }catch(err){
         res.json({
-            message:"wrong",
+            message:"wrongii",
             err
         })
     }
