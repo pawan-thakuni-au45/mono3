@@ -49,7 +49,7 @@ export function ChatRoomClient({messages,id}:{
             }))
 
             setCurrentMessage("");
-        }}>Send message</button>
+        }}>Send Message</button>
     </div>
 
 
