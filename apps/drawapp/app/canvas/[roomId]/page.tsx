@@ -1,4 +1,5 @@
 "use client"
+import { initDraw } from "@/draw"
 import { useRef,useEffect } from "react"
 export default function Canvas(){
 
@@ -7,12 +8,11 @@ export default function Canvas(){
     useEffect(()=>{
 
          if(canvasRef.current){
-            const canvas=canvasRef.current
-            const ctx=canvas.getContext("2d")
-            ctx?.strokeRect(100,0,100,100)       
+           initDraw(canvasRef.current)
+        
         }
     },[canvasRef])
     return<div className="bg-white">
-        <canvas ref={canvasRef} width={300} height={500}></canvas>
+        <canvas ref={canvasRef} width={2000} height={1000}></canvas>
         </div>
 }
