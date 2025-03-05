@@ -17,6 +17,7 @@ export default async function chatRoom1({params}:{params:{slug:string}})
     return <ChatRoom id={roomId}></ChatRoom>
 }
 
+
 //in this page i am getting the id of the room by giving the slug
 
 // after getting the id of the room i will create anothre component where all the chat and everything will be stored

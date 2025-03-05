@@ -1,5 +1,6 @@
 import axios from "axios"
 import { HTTP_BACKEND } from "@/config"
+import { json } from "stream/consumers"
 
 type Shape={
     type:"rect",
@@ -9,12 +10,12 @@ type Shape={
     width:number
 
 } |{
-    type:"cicle",
+    type:"circle",
     centerX:number,
     centerY:number,
     radius:number
 }
-export async function  initDraw(canvas:HTMLCanvasElement,roomId:string){
+export async function  initDraw(canvas:HTMLCanvasElement,roomId:string,socket:WebSocket){
     const ctx=canvas.getContext("2d")
 
     let existingShapes:Shape[]=await getexistingShapes(roomId)
@@ -22,6 +23,15 @@ export async function  initDraw(canvas:HTMLCanvasElement,roomId:string){
     if(!ctx){
         return
     }
+
+socket.onmessage=(event)=>{
+    const message=JSON.parse(event.data)
+    if(message.type=="chat"){
+        const parsedShape=JSON.parse(message.message)
+        existingShapes.push(parsedShape.shape)
+        clearCanvas(existingShapes,canvas,ctx)
+    }
+}
 
     clearCanvas(existingShapes,canvas,ctx)
 
@@ -39,15 +49,24 @@ export async function  initDraw(canvas:HTMLCanvasElement,roomId:string){
         clicked=false
         const width= e.clientX-startX;
            const height=e.clientY-startY;
-        //here the mouse will stop making shape and then only i will push shapwes inside this array
-        existingShapes.push({
+           const shape: Shape = {
             type:"rect",
             x:startX,
             y:startY,
             height,
             width
 
-        })
+           }
+        //here the mouse will stop making shape and then only i will push shapwes inside this array
+        existingShapes.push(shape)
+
+        socket.send(JSON.stringify({
+            type:"chat",
+            message:JSON.stringify({
+                shape
+            }),
+            roomId
+        }))
     })
     canvas.addEventListener("mousemove",(e)=>{
         if(clicked){
@@ -84,7 +103,7 @@ export async function getexistingShapes (roomId:string){
     //and here converting them string to object and returning it 
     const shape=messages.map((x:{message:string})=>{
         const messageData=JSON.parse(x.message)
-        return messageData
+        return messageData.shape
     })
     return shape
 

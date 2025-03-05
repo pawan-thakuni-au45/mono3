@@ -12,18 +12,18 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@types/cors": "^2.8.17",
     "@types/express": "^5.0.0",
     "@types/jsonwebtoken": "^9.0.8",
+    "cors": "^2.8.5",
     "express": "^4.21.2",
     "jsonwebtoken": "^9.0.2",
     "typescript": "^5.7.3"
-   
   },
   "devDependencies": {
-    "@repo/typescript-config": "workspace:*",
-    "@repo/common-backend":"workspace:*",
-    "@repo/common":"workspace:*",
-     "@repo/db":"workspace:*"
-    
+    "@repo/common": "workspace:*",
+    "@repo/common-backend": "workspace:*",
+    "@repo/db": "workspace:*",
+    "@repo/typescript-config": "workspace:*"
   }
 }

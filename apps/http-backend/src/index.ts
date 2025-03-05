@@ -5,9 +5,11 @@ import { JWT_SECRET } from "@repo/common-backend/config"
 import { userMiddlewear } from "./middlewear"
 import { createUserSchema, signInSchema, createRoomSchema } from "@repo/common/types"
 import { prismaClient } from "@repo/db/client"
+import cors from "cors"
 
 const app = express()
 app.use(express.json())
+app.use(cors())
 
 app.post("/signup", async (req, res) => {
 
@@ -24,7 +26,7 @@ app.post("/signup", async (req, res) => {
             data: {
                 username: parseData.data.username,
                 password: parseData.data.password,
-                email: parseData.data?.email
+                email: parseData.data.email
             }
 
 
@@ -132,7 +134,7 @@ app.get("/chats/:roomId", async (req, res) => {
                 roomId: roomId
             },
             orderBy: {
-                roomId: "desc"
+                id: "desc"
             },
             take: 50
     
@@ -173,4 +175,4 @@ app.get("/room/:slug", async (req, res) => {
 })
 
 
-app.listen(3001)
+app.listen(3008)
