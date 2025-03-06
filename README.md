@@ -13,3 +13,4 @@
 
 
 last draw class 4----->
+fixed the scrolling by using css in canvasRef
